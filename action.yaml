@@ -1,5 +1,5 @@
 ---
-name: Clean
+name: Clean Self-Hosted Runner
 description: A Github Action to clean the workspace on a self-hosted runner
 runs:
   using: docker

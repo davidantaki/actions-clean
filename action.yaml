@@ -1,6 +1,11 @@
 ---
 name: Clean Self-Hosted Runner and Containers
 description: A Github Action to clean the workspace on a self-hosted runner
+
+branding:
+  icon: 'trash'
+  color: 'orange'
+
 runs:
   using: docker
   image: Dockerfile

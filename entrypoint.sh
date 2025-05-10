@@ -2,6 +2,12 @@
 set -o errexit -o nounset -o xtrace -o pipefail
 shopt -s inherit_errexit nullglob dotglob
 
+# Handle Docker errors gracefully
+if ! docker info >/dev/null 2>&1; then
+  echo "Warning: Docker daemon not accessible" >&2
+  exit 0
+fi
+
 # Only remove workspace contents if explicitly requested
 if test "${CLEAN_WORKSPACE:-false}" = "true"; then
   rm -rf "${HOME:?}"/* "${GITHUB_WORKSPACE:?}"/*
@@ -49,8 +55,10 @@ done
 
 # Remove containers with error handling
 if test "${#grep_flags[@]}" -gt 0; then
-  if ! printf '%s\n' "${all_containers[@]}" | grep -Fv "${grep_flags[@]}" | xargs -r docker rm --force; then
-    echo "Warning: Failed to remove some containers" >&2
-    exit 0
+  containers_to_remove=$(printf '%s\n' "${all_containers[@]}" | grep -Fv "${grep_flags[@]}" || true)
+  if [ -n "$containers_to_remove" ]; then
+    if ! echo "$containers_to_remove" | xargs -r docker rm --force 2>/dev/null; then
+      echo "Warning: Failed to remove some containers" >&2
+    fi
   fi
 fi

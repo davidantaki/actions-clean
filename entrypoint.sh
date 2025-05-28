@@ -24,8 +24,8 @@ if ! all_containers=($(docker ps --all --quiet 2>/dev/null)); then
 fi
 
 protected_containers=()
-if test "$PROECTED_CONTAINER_SERVICE_IDS" != '[]'; then
-  if ! service_ids=$(jq -r '.[]' <<< "$PROECTED_CONTAINER_SERVICE_IDS" 2>/dev/null); then
+if test "$PROTECTED_CONTAINER_SERVICE_IDS" != '[]'; then
+  if ! service_ids=$(jq -r '.[]' <<< "$PROTECTED_CONTAINER_SERVICE_IDS" 2>/dev/null); then
     echo "Warning: Failed to parse service IDs" >&2
     exit 0
   fi

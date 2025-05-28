@@ -9,6 +9,8 @@ branding:
 runs:
   using: docker
   image: Dockerfile
+  env:
+    PROTECTED_CONTAINER_SERVICE_IDS: ${{ inputs.service_ids }}
 inputs:
   service_ids:
     required: false

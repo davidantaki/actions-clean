@@ -33,6 +33,8 @@ runs:
           -v "${{ github.workspace }}":"/github/workspace" \
           -e CLEAN_WORKSPACE="${{ env.CLEAN_WORKSPACE }}" \
           -e PROTECTED_CONTAINER_SERVICE_IDS="${{ inputs.service_ids }}" \
+          -e GITHUB_WORKSPACE="/github/workspace" \
+          -e HOME="${{ env.HOME }}" \
           -e GITHUB_ACTIONS=true \
           -e CI=true \
           --workdir /github/workspace \

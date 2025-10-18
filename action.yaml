@@ -7,9 +7,9 @@ branding:
   color: 'orange'
 
 inputs:
-  service_ids:
+  protected_containers:
     required: false
-    default: ${{ toJSON(job.services.*.id) }}
+    default: '[]'
 
 runs:
   using: composite
@@ -28,11 +28,16 @@ runs:
         fi
         
         # Run the container
+        PROTECTED="${{ env.PROTECTED_CONTAINER_NAMES }}"
+        if [ -z "$PROTECTED" ]; then
+          PROTECTED="${{ inputs.protected_containers }}"
+        fi
+
         docker run --rm \
           -v "/var/run/docker.sock":"/var/run/docker.sock" \
           -v "${{ github.workspace }}":"/github/workspace" \
           -e CLEAN_WORKSPACE="${{ env.CLEAN_WORKSPACE }}" \
-          -e PROTECTED_CONTAINER_NAMES="${{ inputs.service_ids }}" \
+          -e PROTECTED_CONTAINER_NAMES="$PROTECTED" \
           -e GITHUB_WORKSPACE="/github/workspace" \
           -e HOME="${{ env.HOME }}" \
           -e GITHUB_ACTIONS=true \

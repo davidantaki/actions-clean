@@ -17,8 +17,8 @@ if test "${RUNNER_DEBUG:-0}" != '1'; then
   set +o xtrace 
 fi
 
-# Get all containers, handling potential errors
-if ! all_containers=($(docker ps --all --quiet 2>/dev/null)); then
+# Get all containers by name, handling potential errors
+if ! all_containers=($(docker ps --all --format "{{.Names}}" 2>/dev/null)); then
   echo "Warning: Failed to list Docker containers" >&2
   exit 0
 fi
@@ -32,12 +32,18 @@ if test "$PROTECTED_CONTAINER_SERVICE_IDS" != '[]'; then
   readarray -t protected_containers <<< "$service_ids"
 fi
 
-# Get self container ID more reliably
-if ! self=$(cat /etc/hostname 2>/dev/null); then
+# Get self container name more reliably
+if ! self_id=$(cat /etc/hostname 2>/dev/null); then
   echo "Warning: Failed to get hostname" >&2
   exit 0
 fi
-protected_containers+=("$self")
+if ! self=$(docker ps --filter id="$self_id" --format "{{.Names}}" 2>/dev/null); then
+  echo "Warning: Failed to get container name" >&2
+  exit 0
+fi
+if test -n "$self"; then
+  protected_containers+=("$self")
+fi
 
 if test "${#protected_containers[@]}" -eq "${#all_containers[@]}"; then
   echo 'No "extra" containers detected.' >&2
@@ -46,10 +52,10 @@ fi
 
 # Build grep pattern more safely
 grep_flags=()
-for id in "${protected_containers[@]}"; do
-  if test -n "$id"; then
+for name in "${protected_containers[@]}"; do
+  if test -n "$name"; then
     grep_flags+=('-e')
-    grep_flags+=("$(head -c 12 <<< "$id")")
+    grep_flags+=("$name")
   fi
 done
 

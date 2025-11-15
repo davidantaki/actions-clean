@@ -6,11 +6,6 @@ branding:
   icon: 'trash'
   color: 'orange'
 
-inputs:
-  protected_containers:
-    required: false
-    default: '[]'
-
 runs:
   using: composite
   steps:
@@ -28,16 +23,11 @@ runs:
         fi
         
         # Run the container
-        PROTECTED="${{ env.PROTECTED_CONTAINER_NAMES }}"
-        if [ -z "$PROTECTED" ]; then
-          PROTECTED="${{ inputs.protected_containers }}"
-        fi
-
         docker run --rm \
           -v "/var/run/docker.sock":"/var/run/docker.sock" \
           -v "${{ github.workspace }}":"/github/workspace" \
           -e CLEAN_WORKSPACE="${{ env.CLEAN_WORKSPACE }}" \
-          -e PROTECTED_CONTAINER_NAMES="$PROTECTED" \
+          -e PROTECTED_CONTAINER_NAMES="${{ env.PROTECTED_CONTAINER_NAMES }}" \
           -e GITHUB_WORKSPACE="/github/workspace" \
           -e HOME="${{ env.HOME }}" \
           -e GITHUB_ACTIONS=true \

@@ -24,12 +24,12 @@ if ! all_containers=($(docker ps --all --format "{{.Names}}" 2>/dev/null)); then
 fi
 
 protected_containers=()
-if test "$PROTECTED_CONTAINER_NAMES" != '[]'; then
-  if ! service_names=$(jq -r '.[]' <<< "$PROTECTED_CONTAINER_NAMES" 2>/dev/null); then
-    echo "Warning: Failed to parse service names" >&2
+if test "${PROTECTED_CONTAINER_NAMES:-[]}" != '[]'; then
+  if ! container_names=$(jq -r '.[]' <<< "$PROTECTED_CONTAINER_NAMES" 2>/dev/null); then
+    echo "Warning: Failed to parse container names" >&2
     exit 0
   fi
-  readarray -t protected_containers <<< "$service_names"
+  readarray -t protected_containers <<< "$container_names"
 fi
 
 # Get self container name more reliably
